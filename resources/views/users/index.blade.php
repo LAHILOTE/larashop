@@ -11,18 +11,27 @@
     <div class="row">
         <div class="col-md-6">
             <form action="{{ route('users.index') }}">
-                <div class="input-group mb-3">
-                    <input type="text" name="keyword" class="form-control col-md-10" value="{{ Request::get('keyword') }}"
-                        placeholder="Filter berdasarkan email">
-                    <div class="input-group-append">
-                        <input type="submit" class="btn btn-primary" value="Filter">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" name="keyword" class="form-control" value="{{ Request::get('keyword') }}"
+                            placeholder="Masukan email untuk filter...">
+                    </div>
+                    <div class="col-md-6">
+                        <input {{ Request::get('status') == 'ACTIVE' ? 'checked' : '' }} value="ACTIVE" name="status"
+                            type="radio" class="form-control" id="active">
+                        <label for="active">Active</label>
 
+                        <input {{ Request::get('status') == 'INACTIVE' ? 'checked' : '' }} value="INACTIVE" name="status"
+                            type="radio" class="form-control" id="inactive">
+                        <label for="inactive">Inactive</label>
+
+                        <input type="submit" class="btn btn-primary" value="Filter">
                     </div>
                 </div>
             </form>
         </div>
     </div>
-
+    <hr class="my-3">
     <div class="row">
         <div class="col-md-12 text-right">
             <a href="{{ route('users.create') }} " class="btn btn-primary">Create user</a>
@@ -73,6 +82,13 @@
                     </td>
                 </tr>
             @endforeach
+        <tfoot>
+            <tr>
+                <td colspan="10">
+                    {{ $users->appends(Request::all())->links() }}
+                </td>
+            </tr>
+        </tfoot>
         </tbody>
     </table>
 @endsection
