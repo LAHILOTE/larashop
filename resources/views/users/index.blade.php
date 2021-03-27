@@ -8,6 +8,27 @@
             {{ session('status') }}
         </div>
     @endif
+    <div class="row">
+        <div class="col-md-6">
+            <form action="{{ route('users.index') }}">
+                <div class="input-group mb-3">
+                    <input type="text" name="keyword" class="form-control col-md-10" value="{{ Request::get('keyword') }}"
+                        placeholder="Filter berdasarkan email">
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-primary" value="Filter">
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <a href="{{ route('users.create') }} " class="btn btn-primary">Create user</a>
+        </div>
+    </div>
+    <br>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -32,6 +53,7 @@
                         @endif
                     </td>
                     <td>
+                        <a href="{{ route('users.show', [$user->id]) }}" class="btn btn-primary btn-sm">Detail</a>
                         <a href="{{ route('users.edit', [$user->id]) }}" class="btn btn-info text-white btn-sm">Edit</a>
                         <form onsubmit="return confirm('Delete this user permanently ?')" class="d-inline" method="POST"
                             action="{{ route('users.destroy', [$user->id]) }}">
