@@ -36,6 +36,7 @@
                 <th><b>Username</b></th>
                 <th><b>Email</b></th>
                 <th><b>Avatar</b></th>
+                <th><b>Status</b></th>
                 <th><b>Action</b></th>
             </tr>
         </thead>
@@ -50,6 +51,13 @@
                             <img src="{{ asset('storage/' . $user->avatar) }}" width="70px">
                         @else
                             N/A
+                        @endif
+                    </td>
+                    <td>
+                        @if ($user->status == 'ACTIVE')
+                            <span class="badge badge-success">{{ $user->status }}</span>
+                        @else
+                            <span class="badge badge-danger">{{ $user->status }}</span>
                         @endif
                     </td>
                     <td>
