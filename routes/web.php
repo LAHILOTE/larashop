@@ -20,6 +20,11 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
+Route::get('/categories/trash', [CategoryController::class, 'trash'])->name('categories.trash');
+Route::get('/categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+Route::delete('/categories/{category}/delete-permanent',[CategoryController::class, 'deletePermanent'])->name('categories.delete-permanent');
+
+
 Route::resource("users", UserController::class);
 Route::resource("categories", CategoryController::class);
 
