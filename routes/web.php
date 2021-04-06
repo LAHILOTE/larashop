@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,7 @@ Route::delete('/categories/{category}/delete-permanent',[CategoryController::cla
 
 Route::resource("users", UserController::class);
 Route::resource("categories", CategoryController::class);
+Route::resource("books", BookController::class);
 
 Auth::routes();
 Route::match(["GET", "POST"], "/register", function(){
