@@ -16,7 +16,8 @@ class BookController extends Controller
      */
     public function index()
     {
-        //
+        $books = Book::with('categories')->paginate(10);
+        return view('books.index', ['books' => $books]);
     }
 
     /**
@@ -48,7 +49,7 @@ class BookController extends Controller
         $new_book->status = $request->get('save_action');
 
         $cover = $request->file('cover');
-        if($cover){
+        if ($cover) {
             $cover_path = $cover->store('book-covers', 'public');
             $new_book->cover = $cover_path;
         }
@@ -60,9 +61,9 @@ class BookController extends Controller
 
         $new_book->categories()->attach($request->get('categories'));
 
-        if($request->get('save_action') == 'PUBLISH'){
+        if ($request->get('save_action') == 'PUBLISH') {
             return redirect()->route('books.create')->with('status', 'Book successfully saved and published');
-        }else {
+        } else {
             return redirect()->route('books.create')->with('status', 'Book saved as draft');
         }
     }
