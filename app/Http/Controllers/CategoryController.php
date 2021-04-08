@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 
 class CategoryController extends Controller
@@ -46,6 +48,12 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        Validator::make($request->all(), [
+            "name" => "required|min:3|max:20",
+            "image" => "required"
+        ])->validate();
+
+
         $name = $request->get('name');
         $new_category = new Category;
         $new_category->name = $name;
@@ -98,10 +106,23 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $category = Category::findOrFail($id);
+
+
+        Validator::make($request->all(), [
+            "name" => "required|min:3|max:20",
+            "image" => "required",
+            "slug" => [
+                "required",
+                Rule::unique("categories")->ignore($category->slug, "slug")
+            ]
+        ])->validate();
+
+
+
         $name = $request->get('name');
         $slug = $request->get('slug');
 
-        $category = Category::findOrFail($id);
 
         $category->name = $name;
         $category->slug = $slug;
@@ -137,44 +158,46 @@ class CategoryController extends Controller
         return redirect()->route('categories.index')->with('status', 'Category successfully moved to trash');
     }
 
-    public function trash() {
+    public function trash()
+    {
 
         $deleted_category = Category::onlyTrashed()->paginate(10);
 
-        return view('categories.trash',['categories' => $deleted_category]);
+        return view('categories.trash', ['categories' => $deleted_category]);
     }
 
-    public function restore($id){
+    public function restore($id)
+    {
         $category = Category::withTrashed()->findOrFail($id);
 
-        if($category->trashed()){
+        if ($category->trashed()) {
             $category->restore();
-        }else{
+        } else {
             return redirect()->route('categories.index')->with('status', 'Category is not in trash');
         }
 
-        return redirect()->route('categories.index')->with('status','Category successfully restored');
+        return redirect()->route('categories.index')->with('status', 'Category successfully restored');
     }
 
-    public function deletePermanent($id) {
+    public function deletePermanent($id)
+    {
         $category = Category::withTrashed()->findOrFail($id);
 
-        if(!$category->trashed()){
-            return redirect()->route('categories.index')->with('status','Can not delete permanent active category');
-        }else {
+        if (!$category->trashed()) {
+            return redirect()->route('categories.index')->with('status', 'Can not delete permanent active category');
+        } else {
             $category->forceDelete();
 
-            return redirect()->route('categories.index')->with('status','Category permanently deleted');
+            return redirect()->route('categories.index')->with('status', 'Category permanently deleted');
         }
     }
 
 
-    public function ajaxSearch(Request $request){
+    public function ajaxSearch(Request $request)
+    {
         $keyword = $request->get('q');
         $categories = Category::where("name", "LIKE", "%$keyword%")->get();
 
         return $categories;
     }
-
-
 }
