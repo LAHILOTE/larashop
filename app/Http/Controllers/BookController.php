@@ -7,6 +7,8 @@ use App\Models\Book;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BookController extends Controller
 {
@@ -20,10 +22,10 @@ class BookController extends Controller
         $status = $request->get('status');
         $keyword = $request->get('keyword');
 
-        
-        if($status){
+
+        if ($status) {
             $books = Book::with('categories')->where('title', "LIKE", "%$keyword%")->where('status', strtoupper($status))->paginate(10);
-        }else {
+        } else {
             $books = Book::with('categories')->where('title', "LIKE", "%$keyword%")->paginate(10);
         }
 
@@ -48,6 +50,18 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
+        Validator::make($request->all(), [
+            "title" => "required|min:5|max:200",
+            "description" => "required|min:20|max:1000",
+            "author" => "required|min:3|max:100",
+            "publisher" => "required|min:3|max:200",
+            "price" => "required|digits_between:0,10",
+            "stock" => "required|digits_between:0,10",
+            "cover" => "required"
+        ])->validate();
+
+
+
         $new_book = new Book;
         $new_book->title = $request->get('title');
         $new_book->description = $request->get('description');
@@ -112,6 +126,20 @@ class BookController extends Controller
     {
         $book = Book::findOrFail($id);
 
+
+        Validator::make($request->all(), [
+            "title" => "required|min:5|max:200",
+            "slug" => [
+                "required",
+                Rule::unique("books")->ignore($book->slug, "slug")
+            ],
+            "description" => "required|min:20|max:1000",
+            "author" => "required|min:3|max:100",
+            "publisher" => "required|min:3|max:200",
+            "price" => "required|digits_between:0,10",
+            "stock" => "required|digits_between:0,10",
+        ])->validate();
+
         $book->title = $request->get('title');
         $book->slug = $request->get('slug');
         $book->description = $request->get('description');
@@ -163,23 +191,24 @@ class BookController extends Controller
         return view('books.trash', ['books' => $deleted_books]);
     }
 
-    public function restore($id){
+    public function restore($id)
+    {
         $book = Book::withTrashed()->findOrFail($id);
 
 
-        if($book->trashed()){
+        if ($book->trashed()) {
             $book->restore();
-
-        }else {
+        } else {
             return redirect()->route('books.trash')->with('status', 'Book is not in trash');
         }
         return redirect()->route('books.trash')->with('status', 'Book successfully restored');
     }
 
-    public function deletePermanent($id){
+    public function deletePermanent($id)
+    {
         $book = Book::withTrashed()->findOrFail($id);
 
-        if(!$book->trashed()){
+        if (!$book->trashed()) {
             return redirect()->route('books.trash')->with('status', 'Book is not in trash!')->with('status_type', 'alert');
         } else {
             $book->categories()->detach();

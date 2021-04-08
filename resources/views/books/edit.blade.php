@@ -7,7 +7,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-8">
-            @if(session('status'))
+            @if (session('status'))
                 <div class="alert alert-success">
                     {{ session('status') }}
                 </div>
@@ -21,76 +21,95 @@
 
                 <label for="title">Title</label>
                 <br>
-                <input type="text" class="form-control" value="{{ $book->title }}" name="title" placeholder="Book title">
+                <input type="text" class="form-control {{ $errors->first('title') ? 'is-invalid' : '' }}"
+                    value="{{ old('title') ? old('title') : $book->title }}" name="title" placeholder="Book title" />
+                <div class="invalid-feedback">
+                    {{ $errors->first('title') }}
+                </div>
                 <br>
-
-
-                <label for="cover">Cover</label>
-                <br>
-                <small class="text-muted">Current cover</small>
-                <br>
+                <label for="cover">Cover</label><br>
+                <small class="text-muted">Current cover</small><br>
                 @if ($book->cover)
-                    <img src="{{ asset('storage/' . $book->cover) }}" width="96px">
+                    <img src="{{ asset('storage/' . $book->cover) }}" width="96px" />
                 @endif
                 <br><br>
-                <input type="file" name="cover" class="form-control">
-                <small class="text-muted">Kosongkan jika tidak ingin mengubah cover</small>
+
+                <input type="file" class="form-control {{ $errors->first('cover') ? 'is-invalid' : '' }}" name="cover">
+                <small class="text-muted">Kosongkan jika tidak ingin mengubah
+                    cover</small>
+                <div class="invalid-feedback">
+                    {{ $errors->first('cover') }}
+                </div>
                 <br><br>
 
 
                 <label for="slug">Slug</label>
                 <br>
-                <input type="text" class="form-control" name="slug" value="{{ $book->slug }}" placeholder="enter-a-slug">
+                <input type="text" class="form-control {{ $errors->first('slug') ? 'is-invalid' : '' }}"
+                    value="{{ old('slug') ? old('slug') : $book->slug }}" name="slug" placeholder="enter-a-slug" />
+                <div class="invalid-feedback">
+                    {{ $errors->first('slug') }}
+                </div>
+
                 <br>
 
 
-                <label for="description">Description</label>
+                <label for="description">Description</label> <br>
+                <textarea name="description" id="description"
+                    class="form-control {{ $errors->first('description') ? 'is-invalid' : '' }}"> {{ old('description') ? old('description') : $book->description }} </textarea>
+                <div class="invalid-feedback">
+                    {{ $errors->first('description') }}
+                </div>
                 <br>
-                <textarea name="description" id="description" class="form-control">{{ $book->description }}</textarea>
-                <br>
-
-
                 <label for="categories">Categories</label>
-                <select multiple class="form-control" name="categories[]" id="categories"></select>
-                <br><br>
-
-
-                <label for="stock">Stock</label>
+                <select multiple class="form-control {{ $errors->first('categories') ? 'is-invalid' : '' }}"
+                    name="categories[]" id="categories"></select>
                 <br>
-                <input type="number" class="form-control" name="stock" id="stock" placeholder="Stock"
-                    value="{{ $book->stock }}">
                 <br>
-
-
+                <label for="stock">Stock</label><br>
+                <input type="text" class="form-control {{ $errors->first('stock') ? 'is-invalid' : '' }}"
+                    placeholder="Stock" id="stock" name="stock"
+                    value=" {{ old('stock') ? old('stock') : $book->stock }}">
+                <div class="invalid-feedback">
+                    {{ $errors->first('stock') }}
+                </div>
+                <br>
                 <label for="author">Author</label>
                 <br>
-                <input type="text" placeholder="Author" name="author" id="author" class="form-control"
-                    value="{{ $book->author }}">
+                <input placeholder="Author" value="{{ old('author') ? old('author') : $book->author }}" type="text"
+                    id="author" name="author" class="form-control {{ $errors->first('author') ? 'is-invalid' : '' }}">
+                <div class="invalid-feedback">
+                    {{ $errors->first('author') }}
+                </div>
+                <br>
+                <label for="publisher">Publisher</label><br>
+                <input class="form-control {{ $errors->first('publisher') ? 'isinvalid' : '' }}" type="text"
+                    placeholder="Publisher" name="publisher" id="publisher"
+                    value="{{ old('publisher') ? old('publisher') : $book->publisher }}">
+                <div class="invalid-feedback">
+                    {{ $errors->first('publisher') }}
+                </div>
                 <br>
 
 
-                <label for="publisher">Publisher</label>
-                <br>
-                <input type="text" name="publisher" id="publisher" class="form-control" placeholder="Publisher"
-                    value="{{ $book->publisher }}">
-                <br>
 
-
-                <label for="price">Price</label>
+                <label for="price">Price</label><br>
+                <input type="text" class="form-control {{ $errors->first('price') ? 'is-invalid' : '' }}" name="price"
+                    placeholder="Price" id="price" value="{{ old('price') ? old('price') : $book->price }}">
+                <div class="invalid-feedback">
+                    {{ $errors->first('price') }}
+                </div>
                 <br>
-                <input type="number" name="price" id="price" class="form-control" placeholder="Price"
-                    value="{{ $book->price }}">
-                <br>
-
-
-                <label for="status">Status</label>
-                <select name="status" id="status" class="form-control">
+                <label for="">Status</label>
+                <select name="status" id="status"
+                    class="form-control {{ $errors->first('status') ? 'is-invalid' : '' }}">
                     <option {{ $book->status == 'PUBLISH' ? 'selected' : '' }} value="PUBLISH">PUBLISH</option>
                     <option {{ $book->status == 'DRAFT' ? 'selected' : '' }} value="DRAFT">DRAFT</option>
                 </select>
+                <div class="invalid-feedback">
+                    {{ $errors->first('status') }}
+                </div>
                 <br>
-
-
                 <button class="btn btn-primary" value="PUBLISH">Update</button>
             </form>
         </div>
@@ -106,9 +125,14 @@
         $('#categories').select2({
             ajax: {
                 url: 'http://localhost/larashop/public/ajax/categories/search',
-                processResults: function(data){
+                processResults: function(data) {
                     return {
-                        results: data.map(function(item){return {id: item.id, text:item.name} })
+                        results: data.map(function(item) {
+                            return {
+                                id: item.id,
+                                text: item.name
+                            }
+                        })
                     }
                 }
             }
@@ -116,9 +140,10 @@
 
         var categories = {!! $book->categories !!}
 
-        categories.forEach(function(category){
+        categories.forEach(function(category) {
             var option = new Option(category.name, category.id, true, true);
             $('#categories').append(option).trigger('change');
         });
+
     </script>
 @endsection
